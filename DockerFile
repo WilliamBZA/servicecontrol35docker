@@ -1,0 +1,19 @@
+FROM microsoft/mssql-server-windows-developer
+
+SHELL ["powershell"]
+
+# Create ServiceControl SQL DB
+RUN mkdir 'c:/sqldb'; \
+    SqlCMD -E -q 'ALTER LOGIN [sa] WITH PASSWORD = ''asdf1234!'';'; \
+    SqlCMD -E -q 'ALTER LOGIN [sa] ENABLE;'
+
+# Install ServiceControl
+COPY Particular.ServiceControl-1.48.0.exe /
+
+RUN .\Particular.ServiceControl-1.48.0.exe /quiet /LV* c:/install.log
+
+COPY startup.ps1 /
+
+COPY ProgressTracker c:/
+
+CMD .\startup -Verbose
